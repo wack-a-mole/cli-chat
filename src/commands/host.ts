@@ -116,6 +116,15 @@ export async function hostCommand(options: HostOptions): Promise<void> {
     }
 
     ui.showWelcome(session.code, session.password, connInfo.displayUrl);
+
+    // Emit session info for host-wrap script (side-channel via temp file, no stdout pollution)
+    if (process.env.CLAUDE_DUET_SESSION_FILE) {
+      writeFileSync(process.env.CLAUDE_DUET_SESSION_FILE, JSON.stringify({
+        code: session.code,
+        password: session.password,
+        url: connInfo.url,
+      }));
+    }
   } else {
     // P2P mode (default)
     ui.showSystem("Setting up P2P connection...");

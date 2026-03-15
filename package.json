@@ -14,7 +14,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:session": "bash scripts/test-session.sh",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "host-wrap": "node scripts/host-wrap.mjs"
   },
   "keywords": [
     "claude",
@@ -51,6 +52,7 @@
   },
   "homepage": "https://github.com/elirang/claude-duet#readme",
   "dependencies": {
+    "@aws-sdk/client-sqs": "^3.1009.0",
     "@clack/prompts": "^1.1.0",
     "@inkjs/ui": "^2.0.0",
     "commander": "^13.1.0",
