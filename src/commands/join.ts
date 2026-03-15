@@ -60,7 +60,7 @@ export async function joinCommand(sessionCodeOrOffer: string, options: JoinOptio
       const transport = await Promise.race([
         answer.transport,
         new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error("P2P connection timed out (30s)")), 30000),
+          setTimeout(() => reject(new Error("P2P connection timed out (60s)")), 300000),
         ),
       ]);
 

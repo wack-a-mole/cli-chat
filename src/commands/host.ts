@@ -8,6 +8,7 @@ import { handleSlashCommand, type CommandContext } from "./session-commands.js";
 import { parseSessionHistory, getProjectSessionDir } from "../history.js";
 import { createOffer } from "../peer.js";
 import { copyToClipboard } from "../clipboard.js";
+import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import * as readline from "node:readline";
 
@@ -140,7 +141,7 @@ export async function hostCommand(options: HostOptions): Promise<void> {
       const transport = await Promise.race([
         offer.transport,
         new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error("P2P connection timed out (30s)")), 30000),
+          setTimeout(() => reject(new Error("P2P connection timed out (60s)")), 300000),
         ),
       ]);
 

@@ -83,7 +83,7 @@ export async function startLocaltunnel(localPort: number): Promise<ConnectionInf
     const tunnel = await Promise.race([
       localtunnel({ port: localPort }),
       new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("localtunnel timed out after 30s")), 30000),
+        setTimeout(() => reject(new Error("localtunnel timed out after 60s")), 300000),
       ),
     ]);
 
