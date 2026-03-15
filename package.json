@@ -52,7 +52,6 @@
   },
   "homepage": "https://github.com/elirang/claude-duet#readme",
   "dependencies": {
-    "@aws-sdk/client-sqs": "^3.1009.0",
     "@clack/prompts": "^1.1.0",
     "@inkjs/ui": "^2.0.0",
     "commander": "^13.1.0",

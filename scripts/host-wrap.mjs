@@ -1,21 +1,18 @@
 #!/usr/bin/env node
 /**
  * host-wrap — wraps `claude-duet host --tunnel cloudflare`, intercepts the
- * session credentials once the tunnel is up, sends them to SQS so the
- * always-on EC2 guest machine can join automatically.
+ * session credentials once the tunnel is up, and POSTs them to a Lambda
+ * Function URL so the always-on EC2 guest machine can join automatically.
  *
  * Required env vars:
- *   SQS_QUEUE_URL          — your SQS queue URL
+ *   LAMBDA_URL             — your Lambda Function URL
+ *                            e.g. https://abc123.lambda-url.us-east-1.on.aws/
  *
  * Optional env vars:
- *   AWS_REGION             — defaults to us-east-1
  *   CLAUDE_DUET_GUEST_URL  — the URL you tell the guest to open (your EC2 DNS)
  *                            defaults to https://join.yourdomain.com
  *
- * AWS credentials are picked up automatically from:
- *   - AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY env vars
- *   - ~/.aws/credentials
- *   - EC2/ECS instance role (if running on AWS)
+ * No AWS credentials needed — Lambda Function URL is a plain public HTTPS endpoint.
  *
  * Usage:
  *   npm run host-wrap -- [any extra claude-duet host flags]
@@ -26,20 +23,17 @@ import { spawn } from "node:child_process";
 import { existsSync, readFileSync, unlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 
-const QUEUE_URL = process.env.SQS_QUEUE_URL;
-const REGION = process.env.AWS_REGION ?? "us-east-1";
+const LAMBDA_URL = process.env.LAMBDA_URL;
 const GUEST_URL = process.env.CLAUDE_DUET_GUEST_URL ?? "https://join.yourdomain.com";
 
-if (!QUEUE_URL) {
-  console.error("\n  Error: SQS_QUEUE_URL env var is required.\n");
+if (!LAMBDA_URL) {
+  console.error("\n  Error: LAMBDA_URL env var is required.\n");
   process.exit(1);
 }
 
 const sessionFile = join(tmpdir(), `claude-duet-session-${Date.now()}.json`);
 
-// Pass all extra args after -- straight through to the host command
 const extraArgs = process.argv.slice(2);
 
 const child = spawn(
@@ -66,16 +60,19 @@ const poll = setInterval(async () => {
   }
 
   try {
-    const client = new SQSClient({ region: REGION });
-    await client.send(
-      new SendMessageCommand({
-        QueueUrl: QUEUE_URL,
-        MessageBody: JSON.stringify(session),
-      })
-    );
+    const res = await fetch(LAMBDA_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(session),
+    });
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+
     console.log(`\n  Guest join URL → ${GUEST_URL}\n`);
   } catch (err) {
-    console.error(`\n  Failed to send to SQS: ${err.message}\n`);
+    console.error(`\n  Failed to reach Lambda: ${err.message}\n`);
     console.error("  Session info (send manually if needed):");
     console.error(`  ${JSON.stringify(session)}\n`);
   }
