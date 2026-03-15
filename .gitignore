@@ -5,3 +5,4 @@ dist/
 .test-session/
 .DS_Store
 .superset/
+.env
