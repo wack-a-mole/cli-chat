@@ -15,7 +15,7 @@
     "test:watch": "vitest",
     "test:session": "bash scripts/test-session.sh",
     "prepublishOnly": "npm run build",
-    "host-wrap": "node scripts/host-wrap.mjs"
+    "host-wrap": "node --env-file=.env scripts/host-wrap.mjs"
   },
   "keywords": [
     "claude",
