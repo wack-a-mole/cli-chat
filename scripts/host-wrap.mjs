@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 /**
  * host-wrap — wraps `claude-duet host --tunnel cloudflare`, intercepts the
- * session credentials once the tunnel is up, and POSTs them to a Lambda
- * Function URL so the always-on EC2 guest machine can join automatically.
+ * session credentials once the tunnel is up, and POSTs them directly to the
+ * always-on EC2 guest machine so it can join automatically.
  *
  * Required env vars:
- *   LAMBDA_URL             — your Lambda Function URL
- *                            e.g. https://abc123.lambda-url.us-east-1.on.aws/
+ *   LAMBDA_URL             — your EC2 webhook endpoint
+ *                            e.g. https://join.yourdomain.com/session
  *
  * Optional env vars:
  *   CLAUDE_DUET_GUEST_URL  — the URL you tell the guest to open (your EC2 DNS)
  *                            defaults to https://join.yourdomain.com
  *
- * No AWS credentials needed — Lambda Function URL is a plain public HTTPS endpoint.
+ * No AWS credentials needed — posts directly to the EC2 over HTTPS.
  *
  * Usage:
  *   npm run host-wrap -- [any extra claude-duet host flags]
