@@ -37,8 +37,8 @@ const sessionFile = join(tmpdir(), `claude-duet-session-${Date.now()}.json`);
 const extraArgs = process.argv.slice(2);
 
 const child = spawn(
-  "claude-duet",
-  ["host", "--tunnel", "cloudflare", ...extraArgs],
+  "npx",
+  ["claude-duet", "host", "--tunnel", "cloudflare", ...extraArgs],
   {
     env: { ...process.env, CLAUDE_DUET_SESSION_FILE: sessionFile },
     stdio: "inherit", // full TTY passthrough — Ink UI renders normally
